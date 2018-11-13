@@ -8,6 +8,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
  * 
  * @author Grim3212
  */
-public class PostInitEvent extends Event {
+public class InitEvent extends Event {
 
 }

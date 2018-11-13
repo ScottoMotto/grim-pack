@@ -10,7 +10,7 @@ import com.grim3212.mc.pack.core.common.CommonWorldGen;
 import com.grim3212.mc.pack.core.config.CoreConfig;
 import com.grim3212.mc.pack.core.config.MessageSyncConfig;
 import com.grim3212.mc.pack.core.config.SyncConfigEvent;
-import com.grim3212.mc.pack.core.event.PostInitEvent;
+import com.grim3212.mc.pack.core.event.InitEvent;
 import com.grim3212.mc.pack.core.manual.IManualPart;
 import com.grim3212.mc.pack.core.manual.event.GiveManualEvent;
 import com.grim3212.mc.pack.core.network.MessageBetterExplosion;
@@ -69,6 +69,7 @@ public class GrimCore extends GrimPart {
 		super.init(event);
 		
 		FMLCommonHandler.instance().registerCrashCallable(new CrashHandler());
+		MinecraftForge.EVENT_BUS.post(new InitEvent());
 	}
 
 	@Override
@@ -77,14 +78,13 @@ public class GrimCore extends GrimPart {
 
 		// Register Syncing config
 		MinecraftForge.EVENT_BUS.register(new SyncConfigEvent());
-		MinecraftForge.EVENT_BUS.post(new PostInitEvent());
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	@Optional.Method(modid = "jeresources")
 	@SubscribeEvent
-	public void JERInit(PostInitEvent evt) {
-		new JERGrimPack().register();
+	public void JERInit(InitEvent evt) {
+		new JERGrimPack().registerMobs();
 	}
 
 	@Override

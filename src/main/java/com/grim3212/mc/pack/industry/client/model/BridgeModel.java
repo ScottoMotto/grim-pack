@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.vecmath.Matrix4f;
 
@@ -35,7 +36,6 @@ import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -47,13 +47,16 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
+import net.minecraftforge.client.resource.IResourceType;
+import net.minecraftforge.client.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.client.resource.VanillaResourceType;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
 import net.minecraftforge.common.property.IExtendedBlockState;
 
 public class BridgeModel implements IModel {
 
-	public static final BridgeModel MODEL = new BridgeModel(ImmutableList.<ResourceLocation> of(), new ResourceLocation("grimpack:blocks/bridge"));
+	public static final BridgeModel MODEL = new BridgeModel(ImmutableList.<ResourceLocation>of(), new ResourceLocation("grimpack:blocks/bridge"));
 
 	private final ImmutableList<ResourceLocation> modelLocation;
 	private final ResourceLocation textureLocation;
@@ -114,7 +117,7 @@ public class BridgeModel implements IModel {
 	}
 
 	@SuppressWarnings("deprecation")
-	public class BakedBridgeModel implements IBakedModel, IResourceManagerReloadListener {
+	public class BakedBridgeModel implements IBakedModel, ISelectiveResourceReloadListener {
 
 		protected final IModelState modelState;
 		protected final ImmutableList<ResourceLocation> modelLocation;
@@ -141,8 +144,10 @@ public class BridgeModel implements IModel {
 		}
 
 		@Override
-		public void onResourceManagerReload(IResourceManager resourceManager) {
-			this.cache.clear();
+		public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
+			if (resourcePredicate.test(VanillaResourceType.MODELS)) {
+				this.cache.clear();
+			}
 		}
 
 		@Override
@@ -210,8 +215,8 @@ public class BridgeModel implements IModel {
 		}
 
 		/**
-		 * Generate the model defined in json that is a combination of all
-		 * models defined
+		 * Generate the model defined in json that is a combination of all models
+		 * defined
 		 * 
 		 * @param state
 		 * @param texture
@@ -227,8 +232,8 @@ public class BridgeModel implements IModel {
 		}
 
 		/**
-		 * Generates the model defined in the json and then also merges extra
-		 * models to it
+		 * Generates the model defined in the json and then also merges extra models to
+		 * it
 		 * 
 		 * @param state
 		 * @param texture
@@ -275,7 +280,7 @@ public class BridgeModel implements IModel {
 		}
 
 		// Not really needed since there isn't even an item form of bridges
-		private final ItemOverrideList itemHandler = new ItemOverrideList(Lists.<ItemOverride> newArrayList()) {
+		private final ItemOverrideList itemHandler = new ItemOverrideList(Lists.<ItemOverride>newArrayList()) {
 			@Override
 			public IBakedModel handleItemState(IBakedModel model, ItemStack stack, World world, EntityLivingBase entity) {
 				if (stack.hasTagCompound() && stack.getTagCompound().hasKey("registryName") && stack.getTagCompound().hasKey("meta")) {
@@ -305,7 +310,7 @@ public class BridgeModel implements IModel {
 		@Override
 		public IModel loadModel(ResourceLocation modelLocation) throws IOException {
 			if (modelLocation.getResourcePath().equals("models/block/dynamic_bridge")) {
-				return new BridgeModel(ImmutableList.<ResourceLocation> of(), new ResourceLocation("grimpack:blocks/bridge"));
+				return new BridgeModel(ImmutableList.<ResourceLocation>of(), new ResourceLocation("grimpack:blocks/bridge"));
 			}
 
 			return BridgeModel.MODEL;
